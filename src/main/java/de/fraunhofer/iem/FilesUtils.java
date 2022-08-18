@@ -50,6 +50,7 @@ public class FilesUtils {
             ).forEach(p -> appClasses.add(p.toString()
                     .replace(path.toString(), "")
                     .replaceAll("\\\\", ".")
+                    .replaceAll("/", ".")
                     .replaceAll("^\\.", "")
                     .replaceAll("\\.class$", "")));
         } catch (IOException e) {
