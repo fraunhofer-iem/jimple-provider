@@ -52,36 +52,31 @@ java -jar JimpleProvider-JW-1.0.0-SNAPSHOT-jar-with-dependencies.jar -scp <class
 # Generated Metadata
 An example of generated metadata is shown below.
 
-```{.shell .numberLines}
-{
-  className: "de.fraunhofer.iem.basics.helloWorld.PrintHelloWithClass",
-  superClass: "java.lang.Object",
-  implementedInterface: [ ],
-  methodCount: 2,
-  methodsSignature: [
-    "<de.fraunhofer.iem.basics.helloWorld.PrintHelloWithClass: void <init>()>", 
-    "<de.fraunhofer.iem.basics.helloWorld.PrintHelloWithClass: void main(java.lang.String[])>"
-  ],
-  methodsInformation: {
-    void <init>(): {
-      localVariables: {
-        this: "de.fraunhofer.iem.basics.helloWorld.PrintHelloWithClass"
-      }, 
-      stackVariables: { }, 
-      invokeExpressions: ["<java.lang.Object: void <init>()>"]
-    }, 
-    void main(java.lang.String): {
-      localVariables: {
-        args: "java.lang.String[]"
-      }, 
-      stackVariables: {
-        $stack1: "java.io.PrintStream"
-      }, 
-      invokeExpressions: ["<java.io.PrintStream: void println(java.lang.String)>"]
-    }
-  }
-}
-```
+<pre>
+<span style="font-family: times, serif; font-size:8pt">1</span> {
+<span style="font-family: times, serif; font-size:8pt">2</span>   <span style="color: #a94442">"className"</span>: "de.fraunhofer.iem.functions.simpleExample.classMemberFunctions.TwoInts",
+<span style="font-family: times, serif; font-size:8pt">3</span>   <span style="color: #a94442">"superClass"</span>: "java.lang.Object",
+<span style="font-family: times, serif; font-size:8pt">4</span>   <span style="color: #a94442">"implementedInterface"</span>: [],
+<span style="font-family: times, serif; font-size:8pt">5</span>   <span style="color: #a94442">"methodCount"</span>: 1,
+<span style="font-family: times, serif; font-size:8pt">6</span>   <span style="color: #a94442">"methodsSignature"</span>: [
+<span style="font-family: times, serif; font-size:8pt">7</span>       "&lt;de.fraunhofer.iem.functions.simpleExample.classMemberFunctions.TwoInts: int add(int,int)>"
+<span style="font-family: times, serif; font-size:8pt">8</span>   ],
+<span style="font-family: times, serif; font-size:8pt">9</span>   <span style="color: #a94442">"methodsInformation"</span>: {
+<span style="font-family: times, serif; font-size:8pt">10</span>      <span style="color: #a94442">"int add(int,int)"</span>: {
+<span style="font-family: times, serif; font-size:8pt">11</span>          <span style="color: #a94442">"localVariables"</span>: {
+<span style="font-family: times, serif; font-size:8pt">12</span>              <span style="color: #a94442">"num1"</span>: "int",
+<span style="font-family: times, serif; font-size:8pt">13</span>              <span style="color: #a94442">"num2"</span>: "int",
+<span style="font-family: times, serif; font-size:8pt">14</span>              <span style="color: #a94442">"this"</span>: "de.fraunhofer.iem.functions.simpleExample.classMemberFunctions.TwoInts"
+<span style="font-family: times, serif; font-size:8pt">15</span>          },
+<span style="font-family: times, serif; font-size:8pt">16</span>          <span style="color: #a94442">"stackVariables"</span>: {
+<span style="font-family: times, serif; font-size:8pt">17</span>              <span style="color: #a94442">"$stack3"</span>: "int",
+<span style="font-family: times, serif; font-size:8pt">18</span>              ...
+<span style="font-family: times, serif; font-size:8pt">19</span>          },
+<span style="font-family: times, serif; font-size:8pt">20</span>          <span style="color: #a94442">"invokeExpressions"</span>: []
+<span style="font-family: times, serif; font-size:8pt">21</span>      }
+<span style="font-family: times, serif; font-size:8pt">22</span>  }
+<span style="font-family: times, serif; font-size:8pt">23</span> }
+</pre>
 
 The generated metadata contains six properties on the root JSON object---“className”, “superClass”, “implementedInterface”, “methodCount”, “methodsSignature”, and “methodsInformation”.
 
