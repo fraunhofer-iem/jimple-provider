@@ -48,3 +48,43 @@ To generate the soot Jimple code with Boomerang pre-transformer
 ```.shell
 java -jar JimpleProvider-JW-1.0.0-SNAPSHOT-jar-with-dependencies.jar -scp <classpath location> -od <output location> -bpt
 ```
+
+# Generated Metadata
+An example of generated metadata is shown below.
+
+```json
+{
+  className: "de.fraunhofer.iem.basics.helloWorld.PrintHelloWithClass",
+  superClass: "java.lang.Object",
+  implementedInterface: [ ],
+  methodCount: 2,
+  methodsSignature: [
+    "<de.fraunhofer.iem.basics.helloWorld.PrintHelloWithClass: void <init>()>", 
+    "<de.fraunhofer.iem.basics.helloWorld.PrintHelloWithClass: void main(java.lang.String[])>"
+  ],
+  methodsInformation: {
+    void <init>(): {
+      localVariables: {
+        this: "de.fraunhofer.iem.basics.helloWorld.PrintHelloWithClass"
+      }, 
+      stackVariables: { }, 
+      invokeExpressions: ["<java.lang.Object: void <init>()>"]
+    }, 
+    void main(java.lang.String): {
+      localVariables: {
+        args: "java.lang.String[]"
+      }, 
+      stackVariables: {
+        $stack1: "java.io.PrintStream"
+      }, 
+      invokeExpressions: ["<java.io.PrintStream: void println(java.lang.String)>"]
+    }
+  }
+}
+```
+
+The generated metadata contains six properties on the root JSON object---“className”, “superClass”, “implementedInterface”, “methodCount”, “methodsSignature”, and “methodsInformation”.
+
+- **className:** This property contains the fully qualified class name to which the metadata belongs. For example, in Listing 4.2 at Line 2, this property has the fully qualified class name of TwoInts. This property helps to quickly understand how a fully qualified name for a typical class or even a class for a top-level member appears in the Java bytecode.
+
+
