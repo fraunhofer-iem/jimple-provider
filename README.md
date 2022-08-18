@@ -5,13 +5,7 @@ classpath along with the metadata related to taint analysis.
 # How to build JimpleProvider?
 Clone the project
 ```.shell
-git clone https://git.cs.uni-paderborn.de/swt/theses/master-thesis-of-ranjith-krishnamurthy.git
-```
-
-Change the branch to exploratory/thesis-work
-
-```.shell
-git checkout exploratory/thesis-work
+git clone https://github.com/fraunhofer-iem/jimple-provider.git
 ```
 
 Change the directory to the JimpleProvider project's root directory
