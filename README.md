@@ -52,7 +52,7 @@ java -jar JimpleProvider-JW-1.0.0-SNAPSHOT-jar-with-dependencies.jar -scp <class
 # Generated Metadata
 An example of generated metadata is shown below.
 
-```shell
+```{.shell .numberLines}
 {
   className: "de.fraunhofer.iem.basics.helloWorld.PrintHelloWithClass",
   superClass: "java.lang.Object",
