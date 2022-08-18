@@ -11,7 +11,7 @@ git clone https://github.com/fraunhofer-iem/jimple-provider.git
 Change the directory to the JimpleProvider project's root directory
 
 ````.shell
-cd JimpleProvider
+cd jimple-provider
 ````
 
 Run the below command in the project root directory
