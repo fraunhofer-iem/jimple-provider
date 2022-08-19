@@ -47,7 +47,7 @@ public class Main {
         if (commandLine.hasOption(CommandLineOptionsUtility.CLASS_LIST_SHORT)) {
             String appClassesAsString = commandLine.getOptionValue(CommandLineOptionsUtility.CLASS_LIST_SHORT);
 
-            appClasses.addAll(Arrays.asList(appClassesAsString.split(";")));
+            appClasses.addAll(Arrays.asList(appClassesAsString.split(":")));
 
             // Check if the given classes are valid or not
             appClasses.forEach(s -> {
