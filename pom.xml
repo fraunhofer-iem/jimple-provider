@@ -16,6 +16,37 @@
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>sonatype-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>soot-snapshot</id>
+            <name>soot snapshot</name>
+            <url>https://soot-build.cs.uni-paderborn.de/nexus/repository/soot-snapshot/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>soot-release</id>
+            <name>soot release</name>
+            <url>https://soot-build.cs.uni-paderborn.de/nexus/repository/soot-release/</url>
+                <snapshots>
+                    <enabled>false</enabled>
+                </snapshots>
+        </repository>
+        <repository>
+            <id>github</id>
+            <name>CodeShield-Security</name>
+            <url>https://maven.pkg.github.com/CodeShield-Security/SPDS/</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>commons-cli</groupId>
