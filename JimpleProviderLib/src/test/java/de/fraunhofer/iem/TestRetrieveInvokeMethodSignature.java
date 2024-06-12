@@ -1,7 +1,5 @@
-package iem;
+package de.fraunhofer.iem;
 
-import de.fraunhofer.iem.JimpleProvider;
-import de.fraunhofer.iem.PreTransformer;
 import lombok.val;
 import org.junit.Before;
 import org.junit.Test;
