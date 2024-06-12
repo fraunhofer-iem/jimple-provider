@@ -1,6 +1,7 @@
 package de.fraunhofer.iem;
 
 import boomerang.scene.jimple.BoomerangPretransformer;
+import lombok.val;
 import org.json.JSONObject;
 import soot.Scene;
 import soot.SootClass;
@@ -44,7 +45,7 @@ public class JimpleProvider {
         preTasks(appClasses);
 
         // Generates the output file and generate Jimple
-        File outDir = new File(outDirectory);
+        val outDir = new File(outDirectory);
 
         if (isReplaceOldJimple) {
             filesUtils.deleteDirectory(outDir);
@@ -55,11 +56,11 @@ public class JimpleProvider {
         }
 
         for (String appClass : appClasses) {
-            String outFileAsString = outDir.getAbsolutePath() + File.separator + appClass.replace(".", File.separator) + ".jimple";
-            String metricFileAsString = outDir.getAbsolutePath() + File.separator + appClass.replace(".", File.separator) + ".json";
+            val outFileAsString = outDir.getAbsolutePath() + File.separator + appClass.replace(".", File.separator) + ".jimple";
+            val metricFileAsString = outDir.getAbsolutePath() + File.separator + appClass.replace(".", File.separator) + ".json";
 
-            File outFile = new File(outFileAsString);
-            File metricFile = new File(metricFileAsString);
+            val outFile = new File(outFileAsString);
+            val metricFile = new File(metricFileAsString);
 
             if (!isReplaceOldJimple && outFile.exists()) {
                 continue;
@@ -91,7 +92,7 @@ public class JimpleProvider {
 
             sootUtils.flushSootClassToFile(outFile, sootClass);
 
-            JSONObject metric = JimpleMetricsGenerator.generateMetric(sootClass);
+            val metric = JimpleMetricsGenerator.generateMetric(sootClass);
             filesUtils.flushStringToFile(metricFile, metric.toString(4));
         }
 
@@ -110,11 +111,11 @@ public class JimpleProvider {
         generate(filesUtils.getClassesAsList(appClassPath), outDirectory, isReplaceOldJimple);
     }
 
-    public List<String> getAllInvokedMethodSignature(String appClass, String method) throws IOException {
+    public List<InvokeExpressionToLineNumber> getAllInvokedMethodSignature(String appClass, String method) throws IOException {
         preTasks(filesUtils.getClassesAsList(appClassPath));
 
-        SootClass sootClass = Scene.v().getSootClass(appClass);
-        List<String> allInvokedMethodSignatures = sootUtils.getAllInvokedMethodSignatures(sootClass, method);
+        val sootClass = Scene.v().getSootClass(appClass);
+        val allInvokedMethodSignatures = sootUtils.getAllInvokedMethodSignatures(sootClass, method);
 
         postTasks();
 

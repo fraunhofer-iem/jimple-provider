@@ -1,6 +1,7 @@
 package de.fraunhofer.iem;
 
 import boomerang.scene.jimple.BoomerangPretransformer;
+import lombok.val;
 import soot.*;
 import soot.jimple.Stmt;
 import soot.options.Options;
@@ -30,9 +31,9 @@ public class SootUtils {
         //Options.v().setPhaseOption("jb.lns", "enabled:false");
         Options.v().set_output_format(Options.output_format_none);
 
-        List<SootMethod> entries = new ArrayList<SootMethod>();
-        for (String appClass : appClasses) {
-            SootClass sootClass = Scene.v().forceResolve(appClass, SootClass.BODIES);
+        val entries = new ArrayList<SootMethod>();
+        for (val appClass : appClasses) {
+            val sootClass = Scene.v().forceResolve(appClass, SootClass.BODIES);
             sootClass.setApplicationClass();
             entries.addAll(sootClass.getMethods());
         }
@@ -45,7 +46,7 @@ public class SootUtils {
      * Applies the Boomerang pre-transformer to the soot instance
      */
     protected void applyBoomerangTransformer() {
-        Transform transform = new Transform("wjtp.ifds", createAnalysisTransformer());
+        val transform = new Transform("wjtp.ifds", createAnalysisTransformer());
         PackManager.v().getPack("wjtp").add(transform);
         PackManager.v().getPack("cg").apply();
 
@@ -73,7 +74,7 @@ public class SootUtils {
      * @throws FileNotFoundException If the provided file does not exist
      */
     protected void flushSootClassToFile(File outFile, SootClass sootClass) throws FileNotFoundException {
-        PrintWriter writer = new PrintWriter(outFile);
+        val writer = new PrintWriter(outFile);
         soot.Printer.v().printTo(sootClass, writer);
         writer.flush();
         writer.close();
@@ -85,15 +86,20 @@ public class SootUtils {
      * @param sootMethod Soot method
      * @return Returns List of invoke-expression's method signature in the given method
      */
-    protected List<String> getAllInvokedMethodSignatures(SootMethod sootMethod) {
-        List<String> invokeExpressionSignatures = new ArrayList<>();
+    protected List<InvokeExpressionToLineNumber> getAllInvokedMethodSignatures(SootMethod sootMethod) {
+        val invokeExpressionSignatures = new ArrayList<InvokeExpressionToLineNumber>();
 
-        for (Unit unit : sootMethod.retrieveActiveBody().getUnits()) {
-            Stmt stmt = (Stmt) unit;
+        for (val unit : sootMethod.retrieveActiveBody().getUnits()) {
+            val stmt = (Stmt) unit;
 
             if (stmt.containsInvokeExpr()) {
                 // Invoke expression list
-                invokeExpressionSignatures.add(stmt.getInvokeExpr().getMethod().getSignature());
+                invokeExpressionSignatures.add(
+                        new InvokeExpressionToLineNumber(
+                                stmt.getInvokeExpr().getMethod().getSignature(),
+                                stmt.getJavaSourceStartLineNumber()
+                        )
+                );
             }
         }
 
@@ -107,8 +113,8 @@ public class SootUtils {
      * @param method Method signature
      * @return Returns List of invoke-expression's method signature in the given method signature and the Soot class
      */
-    protected List<String> getAllInvokedMethodSignatures(SootClass sootClass, String method) {
-        StringBuilder methodSignature = new StringBuilder();
+    protected List<InvokeExpressionToLineNumber> getAllInvokedMethodSignatures(SootClass sootClass, String method) {
+        val methodSignature = new StringBuilder();
 
         if (!method.startsWith("<")) {
             methodSignature.append("<");
@@ -120,8 +126,8 @@ public class SootUtils {
             methodSignature.append(">");
         }
 
-        for (SootMethod sootMethod : sootClass.getMethods()) {
-            if (sootMethod.getSignature().equals(methodSignature.toString()) || sootMethod.getSubSignature().equals(method)) {
+        for (val sootMethod : sootClass.getMethods()) {
+            if (sootMethod.getSignature().contentEquals(methodSignature) || sootMethod.getSubSignature().equals(method)) {
                 return getAllInvokedMethodSignatures(sootMethod);
             }
         }
@@ -142,12 +148,12 @@ public class SootUtils {
      * Returns all the stack variable in the given Soot method
      *
      * @param sootMethod Soot method
-     * @return List of stack variables in the given Soot method
+     * @return Map of stack variables in the given Soot method and its type
      */
     protected Map<String, String> getStackVariablesIn(SootMethod sootMethod) {
-        Map<String, String> stackVariables = new LinkedHashMap<>();
+        val stackVariables = new LinkedHashMap<String, String>();
 
-        for (Local local : sootMethod.retrieveActiveBody().getLocals()) {
+        for (val local : sootMethod.retrieveActiveBody().getLocals()) {
             if (isStackVariable(local)) {
                 // Stack variables list
                 stackVariables.put(local.getName(), local.getType().toString());
@@ -161,12 +167,12 @@ public class SootUtils {
      * Returns all the local variable in the given Soot method
      *
      * @param sootMethod Soot method
-     * @return List of local variables in the given Soot method
+     * @return Map of local variables in the given Soot method and its type
      */
     protected Map<String, String> getLocalVariablesIn(SootMethod sootMethod) {
-        Map<String, String> localVariables = new LinkedHashMap<>();
+        val localVariables = new LinkedHashMap<String, String>();
 
-        for (Local local : sootMethod.retrieveActiveBody().getLocals()) {
+        for (val local : sootMethod.retrieveActiveBody().getLocals()) {
             if (!isStackVariable(local)) {
                 // Stack variables list
                 localVariables.put(local.getName(), local.getType().toString());

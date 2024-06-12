@@ -1,5 +1,6 @@
 package de.fraunhofer.iem;
 
+import lombok.val;
 import org.apache.commons.cli.CommandLine;
 
 import java.io.IOException;
@@ -19,18 +20,15 @@ public class Main {
      * @param args Command line arguments
      */
     public static void main(String[] args) {
-        String appClassPath;
-        PreTransformer preTransformer;
-        String outDir;
-        boolean isReplaceOldJimple;
-        FilesUtils filesUtils = new FilesUtils();
+        val filesUtils = new FilesUtils();
 
-        CommandLine commandLine = new CommandLineOptionsUtility().parseCommandArguments(args);
+        val commandLine = new CommandLineOptionsUtility().parseCommandArguments(args);
 
         // Store for the app class path
-        appClassPath = commandLine.getOptionValue(CommandLineOptionsUtility.CLASS_PATH_SHORT);
+        val appClassPath = commandLine.getOptionValue(CommandLineOptionsUtility.CLASS_PATH_SHORT);
 
         // Store for the pre-transformer options
+        PreTransformer preTransformer;
         if (commandLine.hasOption(CommandLineOptionsUtility.BOOMERANG_PRE_TRANSFORMER_SHORT)) {
             preTransformer = PreTransformer.BOOMERANG;
         } else {
@@ -38,13 +36,14 @@ public class Main {
         }
 
         // Store REPLACE_OLD_JIMPLE
+        boolean isReplaceOldJimple;
         isReplaceOldJimple = commandLine.hasOption(CommandLineOptionsUtility.REPLACE_OLD_JIMPLE_SHORT);
 
         // Check for the app class list
-        List<String> appClasses = new ArrayList<>();
+        val appClasses = new ArrayList<String>();
 
         if (commandLine.hasOption(CommandLineOptionsUtility.CLASS_LIST_SHORT)) {
-            String appClassesAsString = commandLine.getOptionValue(CommandLineOptionsUtility.CLASS_LIST_SHORT);
+            val appClassesAsString = commandLine.getOptionValue(CommandLineOptionsUtility.CLASS_LIST_SHORT);
 
             appClasses.addAll(Arrays.asList(appClassesAsString.split(":")));
 
@@ -62,9 +61,9 @@ public class Main {
         }
 
         // Store the output directory
-        outDir = commandLine.getOptionValue(CommandLineOptionsUtility.OUTPUT_ROOT_DIR_SHORT);
+        val outDir = commandLine.getOptionValue(CommandLineOptionsUtility.OUTPUT_ROOT_DIR_SHORT);
 
-        JimpleProvider jimpleProvider = new JimpleProvider(
+        val jimpleProvider = new JimpleProvider(
                 appClassPath,
                 preTransformer
         );
@@ -77,7 +76,7 @@ public class Main {
         System.out.println("***********************************");
 
         try {
-            if (appClasses.size() > 0) {
+            if (!appClasses.isEmpty()) {
                 jimpleProvider.generate(appClasses, outDir, isReplaceOldJimple);
             } else {
                 jimpleProvider.generate(outDir, isReplaceOldJimple);

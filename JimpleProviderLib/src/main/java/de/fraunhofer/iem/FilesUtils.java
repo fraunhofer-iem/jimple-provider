@@ -1,5 +1,6 @@
 package de.fraunhofer.iem;
 
+import lombok.val;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -8,12 +9,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * Utility for File operations
@@ -44,11 +43,10 @@ public class FilesUtils {
      * @return List of classes name
      */
     protected List<String> getClassesAsList(String appClassesPath) throws IOException {
-        Path path = Paths.get(appClassesPath);
+        val path = Paths.get(appClassesPath);
+        val appClasses = new ArrayList<String>();
 
-        List<String> appClasses = new ArrayList<>();
-
-        try (Stream<Path> stream = Files.find(path, Integer.MAX_VALUE, (filePath, fileAttr) ->
+        try (val stream = Files.find(path, Integer.MAX_VALUE, (filePath, fileAttr) ->
                 filePath.toString().endsWith(".class") && fileAttr.isRegularFile())
         ) {
             stream.forEach(p -> appClasses.add(p.toString()
@@ -70,16 +68,16 @@ public class FilesUtils {
      * @return True if successful otherwise false
      */
     protected boolean recursivelyCreateDirectory(String baseDir, String className) {
-        ArrayList<String> stringArray = new ArrayList<>(Arrays.asList(className.split("\\.")));
+        val stringArray = new ArrayList<String>(Arrays.asList(className.split("\\.")));
         stringArray.remove(stringArray.size() - 1);
 
-        StringBuilder completePath = new StringBuilder(baseDir);
+        val completePath = new StringBuilder(baseDir);
 
-        for (String str : stringArray) {
+        for (val str : stringArray) {
             completePath.append(File.separator).append(str);
         }
 
-        File completePathFile = new File(completePath.toString());
+        val completePathFile = new File(completePath.toString());
 
         if (!completePathFile.exists())
             return completePathFile.mkdirs();
@@ -110,7 +108,7 @@ public class FilesUtils {
      * @throws FileNotFoundException If the given file does not exist
      */
     protected void flushStringToFile(File file, String string) throws FileNotFoundException {
-        PrintWriter writer = new PrintWriter(file);
+        val writer = new PrintWriter(file);
         writer.println(string);
         writer.flush();
         writer.close();

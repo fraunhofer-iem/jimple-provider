@@ -1,12 +1,12 @@
 package de.fraunhofer.iem;
 
+import lombok.SneakyThrows;
+import lombok.val;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import soot.SootClass;
-import soot.SootMethod;
 
-import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 
 /**
@@ -24,23 +24,19 @@ public class JimpleMetricsGenerator {
      */
     private static JSONObject getJSONObject() {
         return new JSONObject() {
+            @SneakyThrows
             @Override
             public JSONObject put(String key, Object value) throws JSONException {
-                try {
-                    Field jsonObjectMapField = JSONObject.class.getDeclaredField("map");
-                    jsonObjectMapField.setAccessible(true);
+                val jsonObjectMapField = JSONObject.class.getDeclaredField("map");
+                jsonObjectMapField.setAccessible(true);
 
-                    Object jsonObjectMap = jsonObjectMapField.get(this);
+                val jsonObjectMap = jsonObjectMapField.get(this);
 
-                    // Do it only the first time otherwise it clears the map everytime
-                    if (!(jsonObjectMap instanceof LinkedHashMap)) {
-                        jsonObjectMapField.set(this, new LinkedHashMap<>());
-                    }
-                } catch (IllegalAccessException | NoSuchFieldException e) {
-                    System.err.println("Could not make JSON Object map as LinkedHashMap: ");
-                    e.printStackTrace();
-                    System.exit(-1);
+                // Do it only the first time otherwise it clears the map everytime
+                if (!(jsonObjectMap instanceof LinkedHashMap)) {
+                    jsonObjectMapField.set(this, new LinkedHashMap<>());
                 }
+
 
                 return super.put(key, value);
             }
@@ -54,7 +50,7 @@ public class JimpleMetricsGenerator {
      * @return JSONObject metrics
      */
     public static JSONObject generateMetric(SootClass sootClass) {
-        JSONObject jsonObject = getJSONObject();
+        val jsonObject = getJSONObject();
 
         // 1. className
         jsonObject.put("className", sootClass.getName());
@@ -63,7 +59,7 @@ public class JimpleMetricsGenerator {
         jsonObject.put("superClass", sootClass.getSuperclass().getName());
 
         // 3. Interface implements
-        JSONArray implementedInterface = new JSONArray();
+        val implementedInterface = new JSONArray();
         sootUtils.getImplementedInterfacesBy(sootClass).forEach(implementedInterface::put);
 
         jsonObject.put("implementedInterface", implementedInterface);
@@ -71,18 +67,18 @@ public class JimpleMetricsGenerator {
         // 4. methodCount
         jsonObject.put("methodCount", sootClass.getMethodCount());
 
-        JSONArray methodsSignature = new JSONArray();
-        JSONObject methodsInformation = getJSONObject();
+        val methodsSignature = new JSONArray();
+        val methodsInformation = getJSONObject();
 
-        for (SootMethod sootMethod : sootClass.getMethods()) {
+        for (val sootMethod : sootClass.getMethods()) {
             // Method signature list
             methodsSignature.put(sootMethod.getSignature());
 
-            JSONObject methodInfo = getJSONObject();
+            val methodInfo = getJSONObject();
 
-            JSONObject localVariables = getJSONObject();
-            JSONObject stackVariable = getJSONObject();
-            JSONArray invokeExpression = new JSONArray();
+            val localVariables = getJSONObject();
+            val stackVariable = getJSONObject();
+            val invokeExpression = new JSONArray();
 
             if (sootMethod.hasActiveBody()) {
                 sootUtils.getStackVariablesIn(sootMethod).forEach(stackVariable::put);

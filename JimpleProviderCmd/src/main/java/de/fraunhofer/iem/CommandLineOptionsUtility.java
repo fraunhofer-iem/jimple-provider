@@ -1,5 +1,6 @@
 package de.fraunhofer.iem;
 
+import lombok.val;
 import org.apache.commons.cli.*;
 
 import java.io.File;
@@ -30,28 +31,28 @@ public class CommandLineOptionsUtility {
     /**
      * Initializes the command line options.
      * <p>
-     * Note: In future, if needed to add new options, then add it here.
+     * Note: In the future, if needed to add new options, then add it here.
      *
      * @return Command line options
      */
     private Options initializeCommandLineOptions() {
-        Options cmdOptions = new Options();
+        val cmdOptions = new Options();
 
-        Option classPathOption = new Option(
+        val classPathOption = new Option(
                 CLASS_PATH_SHORT,
                 CLASS_PATH_LONG,
                 true,
                 "Classpath containing the Java bytecode");
         classPathOption.setRequired(true);
 
-        Option outDir = new Option(
+        val outDir = new Option(
                 OUTPUT_ROOT_DIR_SHORT,
                 OUTPUT_ROOT_DIR_LONG,
                 true,
                 "Jimple output root directory");
         outDir.setRequired(true);
 
-        Option classList = new Option(
+        val classList = new Option(
                 CLASS_LIST_SHORT,
                 CLASS_LIST_LONG,
                 true,
@@ -59,14 +60,14 @@ public class CommandLineOptionsUtility {
                         "all the classes available in the given classpath");
         classList.setRequired(false);
 
-        Option bPT = new Option(
+        val bPT = new Option(
                 BOOMERANG_PRE_TRANSFORMER_SHORT,
                 BOOMERANG_PRE_TRANSFORMER_LONG,
                 false,
                 "Apply Boomerang pre-transformer");
         classList.setRequired(false);
 
-        Option rEJ = new Option(
+        val rEJ = new Option(
                 REPLACE_OLD_JIMPLE_SHORT,
                 REPLACE_OLD_JIMPLE_LONG,
                 false,
@@ -90,10 +91,10 @@ public class CommandLineOptionsUtility {
      */
     protected CommandLine parseCommandArguments(String[] args) {
         // Initialize the command line options
-        Options cmdOptions = initializeCommandLineOptions();
+        val cmdOptions = initializeCommandLineOptions();
 
-        CommandLineParser commandLineParser = new DefaultParser();
-        HelpFormatter helpFormatter = new HelpFormatter();
+        val commandLineParser = new DefaultParser();
+        val helpFormatter = new HelpFormatter();
 
         CommandLine commandLine = null;
 
@@ -128,7 +129,7 @@ public class CommandLineOptionsUtility {
             System.exit(-1);
         }
 
-        File file = new File(classPath);
+        val file = new File(classPath);
 
         if (file.exists() && !file.isDirectory()) {
             System.err.println("Given classpath is not a directory!!!");
@@ -147,7 +148,7 @@ public class CommandLineOptionsUtility {
             System.exit(-1);
         }
 
-        File file = new File(outDir);
+        val file = new File(outDir);
 
         if (file.exists() && !file.isDirectory()) {
             System.err.println("Given output root directory is not a directory!!!");
