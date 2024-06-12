@@ -1,6 +1,9 @@
 package de.fraunhofer.iem;
 
 import org.apache.commons.cli.CommandLine;
+import de.fraunhofer.iem.FilesUtils;
+import de.fraunhofer.iem.JimpleProvider;
+import de.fraunhofer.iem.PreTransformer;
 
 import java.util.ArrayList;
 import java.util.Arrays;

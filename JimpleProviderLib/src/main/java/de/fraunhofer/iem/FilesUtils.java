@@ -1,7 +1,11 @@
 package de.fraunhofer.iem;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -9,6 +13,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Utility for File operations
@@ -22,7 +27,7 @@ public class FilesUtils {
      * @param path Path
      * @return Valid path or not
      */
-    protected static boolean isValidPath(String path) {
+    protected boolean isValidPath(String path) {
         try {
             Paths.get(path);
         } catch (InvalidPathException | NullPointerException ex) {
@@ -38,23 +43,20 @@ public class FilesUtils {
      * @param appClassesPath App class path that contains the classes to be converted into Jimple
      * @return List of classes name
      */
-    protected static List<String> getClassesAsList(String appClassesPath) {
+    protected List<String> getClassesAsList(String appClassesPath) throws IOException {
         Path path = Paths.get(appClassesPath);
 
         List<String> appClasses = new ArrayList<>();
 
-        try {
-            Files.find(path,
-                    Integer.MAX_VALUE,
-                    (filePath, fileAttr) -> filePath.toString().endsWith(".class") && fileAttr.isRegularFile()
-            ).forEach(p -> appClasses.add(p.toString()
+        try (Stream<Path> stream = Files.find(path, Integer.MAX_VALUE, (filePath, fileAttr) ->
+                filePath.toString().endsWith(".class") && fileAttr.isRegularFile())
+        ) {
+            stream.forEach(p -> appClasses.add(p.toString()
                     .replace(path.toString(), "")
                     .replaceAll("\\\\", ".")
                     .replaceAll("/", ".")
                     .replaceAll("^\\.", "")
                     .replaceAll("\\.class$", "")));
-        } catch (IOException e) {
-            CommandLineOptionsUtility.printStackTraceAndExit(e);
         }
 
         return appClasses;
@@ -67,7 +69,7 @@ public class FilesUtils {
      * @param className Class name
      * @return True if successful otherwise false
      */
-    protected static boolean recursivelyCreateDirectory(String baseDir, String className) {
+    protected boolean recursivelyCreateDirectory(String baseDir, String className) {
         ArrayList<String> stringArray = new ArrayList<>(Arrays.asList(className.split("\\.")));
         stringArray.remove(stringArray.size() - 1);
 
@@ -83,5 +85,34 @@ public class FilesUtils {
             return completePathFile.mkdirs();
 
         return true;
+    }
+
+    /**
+     * Deletes the given directory
+     * @param outDir Directory to be deleted
+     * @throws IOException If fails to delete the directory
+     */
+    protected void deleteDirectory(File outDir) throws IOException {
+        if (outDir.isDirectory() && outDir.exists()) {
+            FileUtils.deleteDirectory(outDir);
+        } else if (!outDir.isDirectory() && outDir.exists()) {
+            if (!outDir.delete()) {
+                throw new IOException("Given out directory is not a directory and not able to delete it.");
+            }
+        }
+    }
+
+    /**
+     * Flushes the given string to the given file
+     *
+     * @param file File
+     * @param string String to be flushed to the given file
+     * @throws FileNotFoundException If the given file does not exist
+     */
+    protected void flushStringToFile(File file, String string) throws FileNotFoundException {
+        PrintWriter writer = new PrintWriter(file);
+        writer.println(string);
+        writer.flush();
+        writer.close();
     }
 }
