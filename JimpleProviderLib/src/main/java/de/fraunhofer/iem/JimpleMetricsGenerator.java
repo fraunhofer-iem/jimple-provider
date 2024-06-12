@@ -18,6 +18,8 @@ import java.util.LinkedHashMap;
  * @author Ranjith Krishnamurthy
  */
 public class JimpleMetricsGenerator {
+    private static final SootUtils sootUtils = new SootUtils();
+
     /**
      * Overrides the JSONObject and change the field from HashMap to LinkedHashMap to maintain the insertion order.
      *
@@ -65,10 +67,7 @@ public class JimpleMetricsGenerator {
 
         // 3. Interface implements
         JSONArray implementedInterface = new JSONArray();
-
-        for (SootClass interfaceBody : sootClass.getInterfaces()) {
-            implementedInterface.put(interfaceBody.getName());
-        }
+        sootUtils.getImplementedInterfacesBy(sootClass).forEach(implementedInterface::put);
 
         jsonObject.put("implementedInterface", implementedInterface);
 
@@ -89,25 +88,9 @@ public class JimpleMetricsGenerator {
             JSONArray invokeExpression = new JSONArray();
 
             if (sootMethod.hasActiveBody()) {
-                for (Local local : sootMethod.retrieveActiveBody().getLocals()) {
-                    if (local.getName().matches("^\\$.*") || local.getName().matches("^l\\d.*")) {
-                        // Stack variables list
-                        stackVariable.put(local.getName(), local.getType().toString());
-                    } else {
-                        // Local variables list
-                        localVariables.put(local.getName(), local.getType().toString());
-                    }
-                }
-
-
-                for (Unit unit : sootMethod.retrieveActiveBody().getUnits()) {
-                    Stmt stmt = (Stmt) unit;
-
-                    if (stmt.containsInvokeExpr()) {
-                        // Invoke expression list
-                        invokeExpression.put(stmt.getInvokeExpr().getMethod().getSignature());
-                    }
-                }
+                sootUtils.getStackVariablesIn(sootMethod).forEach(stackVariable::put);
+                sootUtils.getLocalVariablesIn(sootMethod).forEach(localVariables::put);
+                sootUtils.getAllInvokedMethodSignatures(sootMethod).forEach(invokeExpression::put);
             }
 
             methodInfo.put("localVariables", localVariables);

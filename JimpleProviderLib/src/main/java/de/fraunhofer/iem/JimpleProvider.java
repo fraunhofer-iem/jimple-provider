@@ -4,11 +4,13 @@ import boomerang.scene.jimple.BoomerangPretransformer;
 import org.json.JSONObject;
 import soot.Scene;
 import soot.SootClass;
+import soot.SootMethod;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -47,13 +49,7 @@ public class JimpleProvider {
      * Generates the Jimple files and respective metrics file
      */
     public void generate() throws IOException {
-        sootUtils.initializeSoot(appClassPath, appClasses);
-
-        // Set the pre-transformer
-        // TODO: In future, if needed to extend the more transformer add the functionality here
-        if (preTransformer == PreTransformer.BOOMERANG) {
-            sootUtils.applyBoomerangTransformer();
-        }
+        preTasks();
 
         // Generates the output file and generate Jimple
         File outDir = new File(outDirectory);
@@ -107,6 +103,37 @@ public class JimpleProvider {
             filesUtils.flushStringToFile(metricFile, metric.toString(4));
         }
 
+        postTasks();
+    }
+
+    public List<String> getAllInvokedMethodSignature(String appClass, String method) {
+        preTasks();
+
+        SootClass sootClass = Scene.v().getSootClass(appClass);
+        List<String> allInvokedMethodSignatures = sootUtils.getAllInvokedMethodSignatures(sootClass, method);
+
+        postTasks();
+
+        return allInvokedMethodSignatures;
+    }
+
+    /**
+     * Pre tasks such as initializing soot, applying the pre-transformer
+     */
+    private void preTasks() {
+        sootUtils.initializeSoot(appClassPath, appClasses);
+
+        // Set the pre-transformer
+        // TODO: In future, if needed to extend the more transformer add the functionality here
+        if (preTransformer == PreTransformer.BOOMERANG) {
+            sootUtils.applyBoomerangTransformer();
+        }
+    }
+
+    /**
+     * Post tasks: resetting the pre-transformer
+     */
+    private void postTasks() {
         // Reset the pre-transformer
         // TODO: If needed, reset the pre-transformer for future extensions
         if (preTransformer == PreTransformer.BOOMERANG) {

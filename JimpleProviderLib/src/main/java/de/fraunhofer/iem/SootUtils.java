@@ -2,14 +2,14 @@ package de.fraunhofer.iem;
 
 import boomerang.scene.jimple.BoomerangPretransformer;
 import soot.*;
+import soot.jimple.Stmt;
 import soot.options.Options;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class SootUtils {
     /**
@@ -77,5 +77,67 @@ public class SootUtils {
         soot.Printer.v().printTo(sootClass, writer);
         writer.flush();
         writer.close();
+    }
+
+    protected List<String> getAllInvokedMethodSignatures(SootMethod sootMethod) {
+        List<String> invokeExpressionSignatures = new ArrayList<>();
+
+        for (Unit unit : sootMethod.retrieveActiveBody().getUnits()) {
+            Stmt stmt = (Stmt) unit;
+
+            if (stmt.containsInvokeExpr()) {
+                // Invoke expression list
+                invokeExpressionSignatures.add(stmt.getInvokeExpr().getMethod().getSignature());
+            }
+        }
+
+        return invokeExpressionSignatures;
+    }
+
+    protected List<String> getAllInvokedMethodSignatures(SootClass sootClass, String method) {
+        for (SootMethod sootMethod : sootClass.getMethods()) {
+            if (sootMethod.getSignature().equals(method) || sootMethod.getSubSignature().equals(method)) {
+                return getAllInvokedMethodSignatures(sootMethod);
+            }
+        }
+
+        return Collections.emptyList();
+    }
+
+    private boolean isStackVariable(Local local) {
+        return local.getName().matches("^\\$.*") || local.getName().matches("^l\\d.*");
+    }
+
+    protected Map<String, String> getStackVariablesIn(SootMethod sootMethod) {
+        Map<String, String> stackVariables = new LinkedHashMap<>();
+
+        for (Local local : sootMethod.retrieveActiveBody().getLocals()) {
+            if (isStackVariable(local)) {
+                // Stack variables list
+                stackVariables.put(local.getName(), local.getType().toString());
+            }
+        }
+
+        return stackVariables;
+    }
+
+    protected Map<String, String> getLocalVariablesIn(SootMethod sootMethod) {
+        Map<String, String> localVariables = new LinkedHashMap<>();
+
+        for (Local local : sootMethod.retrieveActiveBody().getLocals()) {
+            if (!isStackVariable(local)) {
+                // Stack variables list
+                localVariables.put(local.getName(), local.getType().toString());
+            }
+        }
+
+        return localVariables;
+    }
+
+    protected List<String> getImplementedInterfacesBy(SootClass sootClass) {
+        return sootClass.getInterfaces()
+                .stream()
+                .map(SootClass::getName)
+                .collect(Collectors.toList());
     }
 }
