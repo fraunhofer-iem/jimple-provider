@@ -4,13 +4,9 @@ import boomerang.scene.jimple.BoomerangPretransformer;
 import org.json.JSONObject;
 import soot.Scene;
 import soot.SootClass;
-import soot.SootMethod;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -20,10 +16,7 @@ import java.util.List;
  */
 public class JimpleProvider {
     private final String appClassPath;
-    private final List<String> appClasses = new ArrayList<>();
     private final PreTransformer preTransformer;
-    private final String outDirectory;
-    private final boolean isReplaceOldJimple;
     private final static SootUtils sootUtils = new SootUtils();
     private final static FilesUtils filesUtils = new FilesUtils();
 
@@ -31,25 +24,24 @@ public class JimpleProvider {
      * Constructor for JimpleProvider
      *
      * @param appClassPath       App classpath
-     * @param appClasses         List of App classes
      * @param preTransformer     PreTransformer
-     * @param outDirectory       Output directory
-     * @param isReplaceOldJimple Replace the existing Jimple code or not
      */
-    public JimpleProvider(String appClassPath, List<String> appClasses, PreTransformer preTransformer,
-                         String outDirectory, boolean isReplaceOldJimple) {
+    public JimpleProvider(String appClassPath, PreTransformer preTransformer) {
         this.appClassPath = appClassPath;
-        this.appClasses.addAll(appClasses);
         this.preTransformer = preTransformer;
-        this.outDirectory = outDirectory;
-        this.isReplaceOldJimple = isReplaceOldJimple;
     }
 
     /**
      * Generates the Jimple files and respective metrics file
+     *
+     * @param appClasses List of App classes
+     * @param outDirectory Output directory
+     * @param isReplaceOldJimple Replace the existing Jimple code or not
+     *
+     * @throws IOException If there is some problem with accessing the class files
      */
-    public void generate() throws IOException {
-        preTasks();
+    public void generate(List<String> appClasses, String outDirectory, boolean isReplaceOldJimple) throws IOException {
+        preTasks(appClasses);
 
         // Generates the output file and generate Jimple
         File outDir = new File(outDirectory);
@@ -106,8 +98,20 @@ public class JimpleProvider {
         postTasks();
     }
 
-    public List<String> getAllInvokedMethodSignature(String appClass, String method) {
-        preTasks();
+    /**
+     * Generates the Jimple files and respective metrics file
+     *
+     * @param outDirectory Output directory
+     * @param isReplaceOldJimple Replace the existing Jimple code or not
+     *
+     * @throws IOException If there is some problem with accessing the class files
+     */
+    public void generate(String outDirectory, boolean isReplaceOldJimple) throws IOException {
+        generate(filesUtils.getClassesAsList(appClassPath), outDirectory, isReplaceOldJimple);
+    }
+
+    public List<String> getAllInvokedMethodSignature(String appClass, String method) throws IOException {
+        preTasks(filesUtils.getClassesAsList(appClassPath));
 
         SootClass sootClass = Scene.v().getSootClass(appClass);
         List<String> allInvokedMethodSignatures = sootUtils.getAllInvokedMethodSignatures(sootClass, method);
@@ -119,8 +123,10 @@ public class JimpleProvider {
 
     /**
      * Pre tasks such as initializing soot, applying the pre-transformer
+     *
+     * @param appClasses List of App classes
      */
-    private void preTasks() {
+    private void preTasks(List<String> appClasses) {
         sootUtils.initializeSoot(appClassPath, appClasses);
 
         // Set the pre-transformer

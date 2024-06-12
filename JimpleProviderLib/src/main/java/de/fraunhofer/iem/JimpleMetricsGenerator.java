@@ -3,11 +3,8 @@ package de.fraunhofer.iem;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import soot.Local;
 import soot.SootClass;
 import soot.SootMethod;
-import soot.Unit;
-import soot.jimple.Stmt;
 
 import java.lang.reflect.Field;
 import java.util.LinkedHashMap;

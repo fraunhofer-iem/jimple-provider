@@ -1,9 +1,6 @@
 package de.fraunhofer.iem;
 
 import org.apache.commons.cli.CommandLine;
-import de.fraunhofer.iem.FilesUtils;
-import de.fraunhofer.iem.JimpleProvider;
-import de.fraunhofer.iem.PreTransformer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,16 +30,6 @@ public class Main {
         // Store for the app class path
         appClassPath = commandLine.getOptionValue(CommandLineOptionsUtility.CLASS_PATH_SHORT);
 
-        // Store for the complete app classes
-        List<String> completeAppClasses = new ArrayList<>();
-
-        try {
-            completeAppClasses.addAll(filesUtils.getClassesAsList(commandLine.getOptionValue(CommandLineOptionsUtility.CLASS_PATH_SHORT)));
-        } catch (IOException ioException) {
-            System.err.println("There was an exception!\n " + ioException.getMessage());
-            System.exit(-1);
-        }
-
         // Store for the pre-transformer options
         if (commandLine.hasOption(CommandLineOptionsUtility.BOOMERANG_PRE_TRANSFORMER_SHORT)) {
             preTransformer = PreTransformer.BOOMERANG;
@@ -63,13 +50,15 @@ public class Main {
 
             // Check if the given classes are valid or not
             appClasses.forEach(s -> {
-                if (!completeAppClasses.contains(s)) {
-                    System.err.println(s + " is not present in the given class path!");
-                    System.exit(-1);
+                try {
+                    if (!filesUtils.getClassesAsList(appClassPath).contains(s)) {
+                        System.err.println(s + " is not present in the given class path!");
+                        System.exit(-1);
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             });
-        } else {
-            appClasses.addAll(completeAppClasses);
         }
 
         // Store the output directory
@@ -77,10 +66,7 @@ public class Main {
 
         JimpleProvider jimpleProvider = new JimpleProvider(
                 appClassPath,
-                appClasses,
-                preTransformer,
-                outDir,
-                isReplaceOldJimple
+                preTransformer
         );
 
         System.out.println("***********************************");
@@ -91,7 +77,11 @@ public class Main {
         System.out.println("***********************************");
 
         try {
-            jimpleProvider.generate();
+            if (appClasses.size() > 0) {
+                jimpleProvider.generate(appClasses, outDir, isReplaceOldJimple);
+            } else {
+                jimpleProvider.generate(outDir, isReplaceOldJimple);
+            }
         } catch (IOException ioException) {
             System.err.println("There was an exception!\n " + ioException.getMessage());
         }

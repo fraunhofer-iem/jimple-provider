@@ -1,8 +1,6 @@
 package de.fraunhofer.iem;
 
 import org.apache.commons.cli.*;
-import de.fraunhofer.iem.FilesUtils;
-import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 

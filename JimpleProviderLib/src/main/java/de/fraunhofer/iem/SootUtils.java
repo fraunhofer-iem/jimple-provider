@@ -79,6 +79,12 @@ public class SootUtils {
         writer.close();
     }
 
+    /**
+     * Returns all the invoke-expression's method signature in the given method
+     *
+     * @param sootMethod Soot method
+     * @return Returns List of invoke-expression's method signature in the given method
+     */
     protected List<String> getAllInvokedMethodSignatures(SootMethod sootMethod) {
         List<String> invokeExpressionSignatures = new ArrayList<>();
 
@@ -94,9 +100,28 @@ public class SootUtils {
         return invokeExpressionSignatures;
     }
 
+    /**
+     * Returns all the invoke-expression's method signature in the given method signature and the Soot class
+     *
+     * @param sootClass Soot class
+     * @param method Method signature
+     * @return Returns List of invoke-expression's method signature in the given method signature and the Soot class
+     */
     protected List<String> getAllInvokedMethodSignatures(SootClass sootClass, String method) {
+        StringBuilder methodSignature = new StringBuilder();
+
+        if (!method.startsWith("<")) {
+            methodSignature.append("<");
+        }
+
+        methodSignature.append(method);
+
+        if (!method.endsWith(">")) {
+            methodSignature.append(">");
+        }
+
         for (SootMethod sootMethod : sootClass.getMethods()) {
-            if (sootMethod.getSignature().equals(method) || sootMethod.getSubSignature().equals(method)) {
+            if (sootMethod.getSignature().equals(methodSignature.toString()) || sootMethod.getSubSignature().equals(method)) {
                 return getAllInvokedMethodSignatures(sootMethod);
             }
         }
@@ -104,10 +129,21 @@ public class SootUtils {
         return Collections.emptyList();
     }
 
+    /**
+     * Check if the variable is a stack variable
+     * @param local Local
+     * @return Returns true if the given Local is a stack variable
+     */
     private boolean isStackVariable(Local local) {
         return local.getName().matches("^\\$.*") || local.getName().matches("^l\\d.*");
     }
 
+    /**
+     * Returns all the stack variable in the given Soot method
+     *
+     * @param sootMethod Soot method
+     * @return List of stack variables in the given Soot method
+     */
     protected Map<String, String> getStackVariablesIn(SootMethod sootMethod) {
         Map<String, String> stackVariables = new LinkedHashMap<>();
 
@@ -121,6 +157,12 @@ public class SootUtils {
         return stackVariables;
     }
 
+    /**
+     * Returns all the local variable in the given Soot method
+     *
+     * @param sootMethod Soot method
+     * @return List of local variables in the given Soot method
+     */
     protected Map<String, String> getLocalVariablesIn(SootMethod sootMethod) {
         Map<String, String> localVariables = new LinkedHashMap<>();
 
@@ -134,6 +176,12 @@ public class SootUtils {
         return localVariables;
     }
 
+    /**
+     * Returns all the implemented interface by the given Soot class
+     *
+     * @param sootClass Soot class
+     * @return List of implemented interface by the given Soot class
+     */
     protected List<String> getImplementedInterfacesBy(SootClass sootClass) {
         return sootClass.getInterfaces()
                 .stream()
