@@ -5,6 +5,7 @@ import de.fraunhofer.iem.FilesUtils;
 import de.fraunhofer.iem.JimpleProvider;
 import de.fraunhofer.iem.PreTransformer;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +26,7 @@ public class Main {
         PreTransformer preTransformer;
         String outDir;
         boolean isReplaceOldJimple;
+        FilesUtils filesUtils = new FilesUtils();
 
         CommandLine commandLine = new CommandLineOptionsUtility().parseCommandArguments(args);
 
@@ -32,7 +34,14 @@ public class Main {
         appClassPath = commandLine.getOptionValue(CommandLineOptionsUtility.CLASS_PATH_SHORT);
 
         // Store for the complete app classes
-        List<String> completeAppClasses = new ArrayList<>(FilesUtils.getClassesAsList(commandLine.getOptionValue(CommandLineOptionsUtility.CLASS_PATH_SHORT)));
+        List<String> completeAppClasses = new ArrayList<>();
+
+        try {
+            completeAppClasses.addAll(filesUtils.getClassesAsList(commandLine.getOptionValue(CommandLineOptionsUtility.CLASS_PATH_SHORT)));
+        } catch (IOException ioException) {
+            System.err.println("There was an exception!\n " + ioException.getMessage());
+            System.exit(-1);
+        }
 
         // Store for the pre-transformer options
         if (commandLine.hasOption(CommandLineOptionsUtility.BOOMERANG_PRE_TRANSFORMER_SHORT)) {
@@ -80,6 +89,11 @@ public class Main {
         System.out.println("Pre-Transformer \t:   " + preTransformer);
         System.out.println("Class list      \t:   " + appClasses);
         System.out.println("***********************************");
-        jimpleProvider.generate();
+
+        try {
+            jimpleProvider.generate();
+        } catch (IOException ioException) {
+            System.err.println("There was an exception!\n " + ioException.getMessage());
+        }
     }
 }

@@ -2,6 +2,7 @@ package de.fraunhofer.iem;
 
 import org.apache.commons.cli.*;
 import de.fraunhofer.iem.FilesUtils;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 
@@ -24,6 +25,9 @@ public class CommandLineOptionsUtility {
     protected static final String BOOMERANG_PRE_TRANSFORMER_LONG = "boomerang-pre-transformer";
     protected static final String REPLACE_OLD_JIMPLE_SHORT = "rej";
     protected static final String REPLACE_OLD_JIMPLE_LONG = "replace-existing-jimple";
+
+    private static final FilesUtils filesUtils = new FilesUtils();
+
 
     /**
      * Initializes the command line options.
@@ -121,7 +125,7 @@ public class CommandLineOptionsUtility {
      * @param classPath Classpath
      */
     private void checkClassPath(String classPath) {
-        if (!FilesUtils.isValidPath(classPath)) {
+        if (!filesUtils.isValidPath(classPath)) {
             System.err.println("Given classpath is not valid!!!");
             System.exit(-1);
         }
@@ -140,7 +144,7 @@ public class CommandLineOptionsUtility {
      * @param outDir Output root directory
      */
     private void checkOutDir(String outDir) {
-        if (!FilesUtils.isValidPath(outDir)) {
+        if (!filesUtils.isValidPath(outDir)) {
             System.err.println("Given output root directory is not valid!!!");
             System.exit(-1);
         }
