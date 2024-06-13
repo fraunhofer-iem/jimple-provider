@@ -45,4 +45,34 @@ public class TestRetrieveInvokeMethodSignature {
             }
         }
     }
+
+    @Test
+    public void test2() throws IOException {
+        System.out.println(classPath);
+        JimpleProvider jimpleProvider = new JimpleProvider(classPath, PreTransformer.NONE);
+        val invokedMethods = jimpleProvider.getAllMethodSignature();
+
+        assertEquals(21, invokedMethods.size());
+        assertEquals("[<java.lang.Object: void <init>()>, " +
+                "<java.lang.System: void exit(int)>, " +
+                "<java.lang.String: boolean equals(java.lang.Object)>, " +
+                "<de.fraunhofer.iem.App: void <init>()>, " +
+                "<de.fraunhofer.iem.App: void main(java.lang.String[])>, " +
+                "<java.util.Scanner: void <init>(java.io.InputStream)>, " +
+                "<de.fraunhofer.iem.App: void <clinit>()>, " +
+                "<java.lang.StringBuilder: void <init>()>, " +
+                "<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.String)>, " +
+                "<de.fraunhofer.iem.App: de.fraunhofer.iem.HelloPrinter getPrinter()>, " +
+                "<java.lang.String: int hashCode()>, " +
+                "<de.fraunhofer.iem.HelloPrinterWithMessage: void <init>()>, " +
+                "<java.lang.StringBuilder: java.lang.String toString()>, " +
+                "<java.io.PrintStream: void println(java.lang.String)>, " +
+                "<java.util.Scanner: java.lang.String nextLine()>, " +
+                "<java.lang.String: java.lang.String[] split(java.lang.String)>, " +
+                "<de.fraunhofer.iem.HelloPrinterWithMessage: void printHelloWorld(java.lang.String)>, " +
+                "<de.fraunhofer.iem.HelloPrinterWithName: void <init>()>, " +
+                "<de.fraunhofer.iem.HelloPrinter: void printHelloWorld(java.lang.String)>, " +
+                "<java.lang.String: java.lang.String toLowerCase()>, " +
+                "<de.fraunhofer.iem.HelloPrinterWithName: void printHelloWorld(java.lang.String)>]", invokedMethods.toString());
+    }
 }

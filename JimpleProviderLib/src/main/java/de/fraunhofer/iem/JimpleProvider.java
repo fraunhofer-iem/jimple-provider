@@ -7,7 +7,10 @@ import soot.SootClass;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Generates the Jimple code and its metrics
@@ -114,11 +117,36 @@ public class JimpleProvider {
         preTasks(filesUtils.getClassesAsList(appClassPath));
 
         val sootClass = Scene.v().getSootClass(appClass);
+
         val allInvokedMethodSignatures = sootUtils.getAllInvokedMethodSignatures(sootClass, method);
 
         postTasks();
 
         return allInvokedMethodSignatures;
+    }
+
+    public Set<String> getAllMethodSignature() throws IOException {
+        preTasks(filesUtils.getClassesAsList(appClassPath));
+
+        val allMethodSignature = new HashSet<String>();
+
+        for (val appClass : filesUtils.getClassesAsList(appClassPath)) {
+            val sootClass = Scene.v().getSootClass(appClass);
+
+            for (val sootMethod : sootClass.getMethods()) {
+                allMethodSignature.add(sootMethod.getSignature());
+
+                val allInvokedMethodSignatures = sootUtils.getAllInvokedMethodSignatures(sootClass, sootMethod.getSignature());
+
+                allInvokedMethodSignatures.stream()
+                        .map(InvokeExpressionToLineNumber::getInvokedMethodSignature)
+                        .forEach(allMethodSignature::add);
+            }
+        }
+
+        postTasks();
+
+        return allMethodSignature;
     }
 
     /**

@@ -89,7 +89,16 @@ public class SootUtils {
     protected List<InvokeExpressionToLineNumber> getAllInvokedMethodSignatures(SootMethod sootMethod) {
         val invokeExpressionSignatures = new ArrayList<InvokeExpressionToLineNumber>();
 
-        for (val unit : sootMethod.retrieveActiveBody().getUnits()) {
+        Body body;
+
+        try {
+            body = sootMethod.retrieveActiveBody();
+        } catch (RuntimeException ex) {
+            System.err.println("Could not get active body: " + sootMethod);
+            return Collections.emptyList();
+        }
+
+        for (val unit : body.getUnits()) {
             val stmt = (Stmt) unit;
 
             if (stmt.containsInvokeExpr()) {
