@@ -2,7 +2,6 @@ package de.fraunhofer.iem;
 
 import boomerang.scene.jimple.BoomerangPretransformer;
 import lombok.val;
-import org.json.JSONObject;
 import soot.Scene;
 import soot.SootClass;
 

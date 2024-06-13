@@ -1,12 +1,10 @@
 package de.fraunhofer.iem;
 
 import lombok.val;
-import org.apache.commons.cli.CommandLine;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Main class of the JimpleProvider tool
