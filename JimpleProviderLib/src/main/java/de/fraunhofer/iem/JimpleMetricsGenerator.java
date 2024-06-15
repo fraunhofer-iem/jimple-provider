@@ -83,7 +83,7 @@ public class JimpleMetricsGenerator {
             if (sootMethod.hasActiveBody()) {
                 sootUtils.getStackVariablesIn(sootMethod).forEach(stackVariable::put);
                 sootUtils.getLocalVariablesIn(sootMethod).forEach(localVariables::put);
-                sootUtils.getAllInvokedMethodSignatures(sootMethod).forEach(invokeExpression::put);
+                sootUtils.getAllInvokedMethodSignatures(sootMethod).stream().map(InvokeExpressionToLineNumber::getInvokedMethodSignature).forEach(invokeExpression::put);
             }
 
             methodInfo.put("localVariables", localVariables);
