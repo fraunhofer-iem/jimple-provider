@@ -114,15 +114,34 @@ public class JimpleProvider {
     }
 
     public List<InvokeExpressionToLineNumber> getAllInvokedMethodSignature(String appClass, String method) throws IOException {
-        preTasks(filesUtils.getClassesAsList(appClassPath));
-
         val sootClass = Scene.v().getSootClass(appClass);
 
         val allInvokedMethodSignatures = sootUtils.getAllInvokedMethodSignatures(sootClass, method);
 
-        postTasks();
-
         return allInvokedMethodSignatures;
+    }
+
+    public Set<String> getAllInvokedMethodSignature(String rootPackageName) throws IOException {
+        preTasks(filesUtils.getClassesAsList(appClassPath));
+
+        val allMethodSignature = new HashSet<String>();
+
+        for (val appClass : filesUtils.getClassesAsList(appClassPath)) {
+            val sootClass = Scene.v().getSootClass(appClass);
+
+            if (sootClass.getPackageName().startsWith(rootPackageName)) {
+                for (val sootMethod : sootClass.getMethods()) {
+                    val allInvokedMethodSignatures = sootUtils.getAllInvokedMethodSignatures(sootClass, sootMethod.getSignature());
+
+                    allInvokedMethodSignatures.stream()
+                            .map(InvokeExpressionToLineNumber::getInvokedMethodSignature)
+                            .forEach(allMethodSignature::add);
+                }
+            }
+        }
+
+        postTasks();
+        return allMethodSignature;
     }
 
     public Set<String> getAllMethodSignature() throws IOException {
@@ -154,7 +173,7 @@ public class JimpleProvider {
      *
      * @param appClasses List of App classes
      */
-    private void preTasks(List<String> appClasses) {
+    public void preTasks(List<String> appClasses) {
         sootUtils.initializeSoot(appClassPath, appClasses);
 
         // Set the pre-transformer
@@ -167,7 +186,7 @@ public class JimpleProvider {
     /**
      * Post tasks: resetting the pre-transformer
      */
-    private void postTasks() {
+    public void postTasks() {
         // Reset the pre-transformer
         // TODO: If needed, reset the pre-transformer for future extensions
         if (preTransformer == PreTransformer.BOOMERANG) {
