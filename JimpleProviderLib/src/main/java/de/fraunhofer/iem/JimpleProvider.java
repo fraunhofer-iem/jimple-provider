@@ -7,10 +7,7 @@ import soot.SootClass;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Generates the Jimple code and its metrics
@@ -119,6 +116,33 @@ public class JimpleProvider {
         val allInvokedMethodSignatures = sootUtils.getAllInvokedMethodSignatures(sootClass, method);
 
         return allInvokedMethodSignatures;
+    }
+
+    public HashMap<String, List<InvokeExpressionToLineNumber>> getAllInvokedMethodUsages(String rootPackageName) throws IOException {
+        HashMap<String, List<InvokeExpressionToLineNumber>> usages = new HashMap<>();
+
+        preTasks(filesUtils.getClassesAsList(appClassPath));
+
+        for (val appClass : filesUtils.getClassesAsList(appClassPath)) {
+            val sootClass = Scene.v().getSootClass(appClass);
+
+            if (sootClass.getPackageName().startsWith(rootPackageName)) {
+                for (val sootMethod : sootClass.getMethods()) {
+                    val allInvokedMethodSignatures = sootUtils.getAllInvokedMethodSignatures(sootClass, sootMethod.getSignature());
+
+                    for (val invokeExpr : allInvokedMethodSignatures) {
+                        if (usages.containsKey(invokeExpr.invokedMethodSignature)) {
+                            usages.get(invokeExpr.invokedMethodSignature).add(invokeExpr);
+                        } else {
+                            usages.put(invokeExpr.invokedMethodSignature, new ArrayList<>(Collections.singletonList(invokeExpr)));
+                        }
+                    }
+                }
+            }
+        }
+
+        postTasks();
+        return usages;
     }
 
     public Set<String> getAllInvokedMethodSignature(String rootPackageName) throws IOException {

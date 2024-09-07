@@ -106,6 +106,7 @@ public class SootUtils {
                 invokeExpressionSignatures.add(
                         new InvokeExpressionToLineNumber(
                                 stmt.getInvokeExpr().getMethod().getSignature(),
+                                sootMethod.getSignature(),
                                 stmt.getJavaSourceStartLineNumber()
                         )
                 );
