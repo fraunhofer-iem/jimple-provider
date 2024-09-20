@@ -4,6 +4,7 @@ import boomerang.scene.jimple.BoomerangPretransformer;
 import lombok.val;
 import soot.Scene;
 import soot.SootClass;
+import soot.SootMethod;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +20,7 @@ public class JimpleProvider {
     private final PreTransformer preTransformer;
     private final static SootUtils sootUtils = new SootUtils();
     private final static FilesUtils filesUtils = new FilesUtils();
+    private final List<String> appClasses;
 
     /**
      * Constructor for JimpleProvider
@@ -26,9 +28,14 @@ public class JimpleProvider {
      * @param appClassPath       App classpath
      * @param preTransformer     PreTransformer
      */
-    public JimpleProvider(String appClassPath, PreTransformer preTransformer) {
+    private JimpleProvider(String appClassPath, PreTransformer preTransformer, List<String> appClasses) {
         this.appClassPath = appClassPath;
         this.preTransformer = preTransformer;
+        this.appClasses = appClasses;
+    }
+
+    public static JimpleProvider getInstance(String appClassPath, PreTransformer preTransformer, List<String> appClasses) {
+        return new JimpleProvider(appClassPath, preTransformer, appClasses);
     }
 
     /**
@@ -41,8 +48,6 @@ public class JimpleProvider {
      * @throws IOException If there is some problem with accessing the class files
      */
     public void generate(List<String> appClasses, String outDirectory, boolean isReplaceOldJimple) throws IOException {
-        preTasks(appClasses);
-
         // Generates the output file and generate Jimple
         val outDir = new File(outDirectory);
 
@@ -94,8 +99,6 @@ public class JimpleProvider {
             val metric = JimpleMetricsGenerator.generateMetric(sootClass);
             filesUtils.flushStringToFile(metricFile, metric.toString(4));
         }
-
-        postTasks();
     }
 
     /**
@@ -107,10 +110,10 @@ public class JimpleProvider {
      * @throws IOException If there is some problem with accessing the class files
      */
     public void generate(String outDirectory, boolean isReplaceOldJimple) throws IOException {
-        generate(filesUtils.getClassesAsList(appClassPath), outDirectory, isReplaceOldJimple);
+        generate(appClasses, outDirectory, isReplaceOldJimple);
     }
 
-    public List<InvokeExpressionToLineNumber> getAllInvokedMethodSignature(String appClass, String method) throws IOException {
+    public List<InvokeExpressionToLineNumber> getAllInvokedMethodSignature(String appClass, String method) {
         val sootClass = Scene.v().getSootClass(appClass);
 
         val allInvokedMethodSignatures = sootUtils.getAllInvokedMethodSignatures(sootClass, method);
@@ -118,12 +121,22 @@ public class JimpleProvider {
         return allInvokedMethodSignatures;
     }
 
-    public HashMap<String, List<InvokeExpressionToLineNumber>> getAllInvokedMethodUsages(String rootPackageName) throws IOException {
+    public List<SootClass> getAllApplicationClasses() {
+        val appClassesAsSootClass = new ArrayList<SootClass>();
+
+        for (val appClass : appClasses) {
+            appClassesAsSootClass.add(
+                    Scene.v().getSootClass(appClass)
+            );
+        }
+
+        return appClassesAsSootClass;
+    }
+
+    public HashMap<String, List<InvokeExpressionToLineNumber>> getAllInvokedMethodUsages(String rootPackageName) {
         HashMap<String, List<InvokeExpressionToLineNumber>> usages = new HashMap<>();
 
-        preTasks(filesUtils.getClassesAsList(appClassPath));
-
-        for (val appClass : filesUtils.getClassesAsList(appClassPath)) {
+        for (val appClass : appClasses) {
             val sootClass = Scene.v().getSootClass(appClass);
 
             if (sootClass.getPackageName().startsWith(rootPackageName)) {
@@ -141,16 +154,13 @@ public class JimpleProvider {
             }
         }
 
-        postTasks();
         return usages;
     }
 
-    public Set<String> getAllInvokedMethodSignature(String rootPackageName) throws IOException {
-        preTasks(filesUtils.getClassesAsList(appClassPath));
-
+    public Set<String> getAllInvokedMethodSignature(String rootPackageName) {
         val allMethodSignature = new HashSet<String>();
 
-        for (val appClass : filesUtils.getClassesAsList(appClassPath)) {
+        for (val appClass : appClasses) {
             val sootClass = Scene.v().getSootClass(appClass);
 
             if (sootClass.getPackageName().startsWith(rootPackageName)) {
@@ -164,16 +174,13 @@ public class JimpleProvider {
             }
         }
 
-        postTasks();
         return allMethodSignature;
     }
 
-    public Set<String> getAllMethodSignature() throws IOException {
-        preTasks(filesUtils.getClassesAsList(appClassPath));
-
+    public Set<String> getAllMethodSignature() {
         val allMethodSignature = new HashSet<String>();
 
-        for (val appClass : filesUtils.getClassesAsList(appClassPath)) {
+        for (val appClass : appClasses) {
             val sootClass = Scene.v().getSootClass(appClass);
 
             for (val sootMethod : sootClass.getMethods()) {
@@ -187,17 +194,14 @@ public class JimpleProvider {
             }
         }
 
-        postTasks();
-
         return allMethodSignature;
     }
 
     /**
      * Pre tasks such as initializing soot, applying the pre-transformer
      *
-     * @param appClasses List of App classes
      */
-    public void preTasks(List<String> appClasses) {
+    public void preTasks() {
         sootUtils.initializeSoot(appClassPath, appClasses);
 
         // Set the pre-transformer

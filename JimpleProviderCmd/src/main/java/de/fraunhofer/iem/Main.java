@@ -61,10 +61,14 @@ public class Main {
         // Store the output directory
         val outDir = commandLine.getOptionValue(CommandLineOptionsUtility.OUTPUT_ROOT_DIR_SHORT);
 
-        val jimpleProvider = new JimpleProvider(
-                appClassPath,
-                preTransformer
-        );
+
+        val jimpleProviderBuilder = new JimpleProviderBuilder();
+
+        try {
+        val jimpleProvider = jimpleProviderBuilder
+                .appClassPath(appClassPath)
+                .preTransformer(preTransformer)
+                .build();
 
         System.out.println("***********************************");
         System.out.println("App Classpath   \t:   " + appClassPath);
@@ -73,7 +77,7 @@ public class Main {
         System.out.println("Class list      \t:   " + appClasses);
         System.out.println("***********************************");
 
-        try {
+
             if (!appClasses.isEmpty()) {
                 jimpleProvider.generate(appClasses, outDir, isReplaceOldJimple);
             } else {
@@ -81,6 +85,8 @@ public class Main {
             }
         } catch (IOException ioException) {
             System.err.println("There was an exception!\n " + ioException.getMessage());
+        } finally {
+            jimpleProviderBuilder.close();
         }
     }
 }

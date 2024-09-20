@@ -22,10 +22,14 @@ public class TestRetrieveInvokeMethodSignature {
 
     @Test
     public void test() throws IOException {
-        JimpleProvider jimpleProvider = new JimpleProvider(classPath, PreTransformer.NONE);
+        val jimpleProviderBuilder = new JimpleProviderBuilder();
+
+        JimpleProvider jimpleProvider = jimpleProviderBuilder.appClassPath(classPath).build();
+
         val invokedMethods = jimpleProvider.getAllInvokedMethodSignature(
                 "de.fraunhofer.iem.App", "de.fraunhofer.iem.App: void main(java.lang.String[])");
 
+        jimpleProviderBuilder.close();
 
         assertEquals(3, invokedMethods.size());
 
@@ -49,8 +53,12 @@ public class TestRetrieveInvokeMethodSignature {
     @Test
     public void test2() throws IOException {
         System.out.println(classPath);
-        JimpleProvider jimpleProvider = new JimpleProvider(classPath, PreTransformer.NONE);
+        val jimpleProviderBuilder = new JimpleProviderBuilder();
+        JimpleProvider jimpleProvider = jimpleProviderBuilder.appClassPath(classPath).build();
+
         val invokedMethods = jimpleProvider.getAllMethodSignature();
+
+        jimpleProviderBuilder.close();
 
         assertEquals(21, invokedMethods.size());
         assertEquals("[<java.lang.Object: void <init>()>, " +
