@@ -2,9 +2,9 @@ package de.fraunhofer.iem;
 
 import boomerang.scene.jimple.BoomerangPretransformer;
 import lombok.val;
-import soot.Scene;
-import soot.SootClass;
-import soot.SootMethod;
+import soot.*;
+import soot.tagkit.SourceLnPosTag;
+import soot.util.Chain;
 
 import java.io.File;
 import java.io.IOException;
@@ -131,6 +131,44 @@ public class JimpleProvider {
         }
 
         return appClassesAsSootClass;
+    }
+
+    private int getLastLineNumber(Chain<Unit> units, Unit unit) {
+        if (unit.getJavaSourceStartLineNumber() != -1)
+            return unit.getJavaSourceStartLineNumber();
+
+        return getLastLineNumber(units, units.getPredOf(unit));
+    }
+
+    public String findMethodContainingLineNumber(String fileName, int lineNumber) {
+        val className = fileName
+                .replace("src/main/java/", "")
+                .replace("src\\main\\java\\", "")
+                .replace("/", ".")
+                .replace("\\", ".")
+                .replace(".java", "");
+
+        val sc = Scene.v().forceResolve(className, SootClass.BODIES);
+
+        // Iterate over each method in the class
+        for (SootMethod method : sc.getMethods()) {
+            // Check if the method has an active body (non-abstract method)
+            try {
+                Body body = method.retrieveActiveBody();
+                Chain<Unit> units = body.getUnits();
+
+                val firstUnitLineNumber = method.getJavaSourceStartLineNumber();
+                val lastUnitLineNumber = getLastLineNumber(units, units.getLast());
+
+                if (lineNumber >= firstUnitLineNumber && lineNumber <= lastUnitLineNumber)
+                    return method.getSignature();
+            } catch (RuntimeException ex) {
+                System.err.println("Could not get active body: " + method);
+                return null;
+            }
+        }
+
+        return null; // No method contains the given line number
     }
 
     public HashMap<String, List<InvokeExpressionToLineNumber>> getAllInvokedMethodUsages(String rootPackageName) {
