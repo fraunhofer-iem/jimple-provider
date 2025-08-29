@@ -25,7 +25,6 @@ public class SootUtils {
         Options.v().set_soot_classpath(appClassPath);
         Options.v().set_prepend_classpath(true);
         Options.v().set_whole_program(true);
-        Options.v().set_allow_phantom_refs(true);
 
         Options.v().setPhaseOption("jb", "use-original-names:true");
         //Options.v().setPhaseOption("jb.lns", "enabled:false");
@@ -39,6 +38,25 @@ public class SootUtils {
         }
 
         Scene.v().setEntryPoints(entries);
+        Scene.v().loadNecessaryClasses();
+    }
+
+    protected void initializeMinimalSoot(String appClassPath, List<String> appClasses) {
+        G.reset();
+        Options.v().set_keep_line_number(true);
+        Options.v().set_allow_phantom_refs(true);
+        Options.v().set_soot_classpath(appClassPath);
+        Options.v().set_prepend_classpath(true);
+        Options.v().set_output_format(Options.output_format_none);
+        Options.v().set_whole_program(false); // 🚫 no callgraph
+
+        Options.v().setPhaseOption("jb", "use-original-names:true");
+
+        for (String appClass : appClasses) {
+            SootClass sootClass = Scene.v().forceResolve(appClass, SootClass.BODIES);
+            sootClass.setApplicationClass();
+        }
+
         Scene.v().loadNecessaryClasses();
     }
 
@@ -94,7 +112,9 @@ public class SootUtils {
         try {
             body = sootMethod.retrieveActiveBody();
         } catch (RuntimeException ex) {
-            System.err.println("Could not get active body: " + sootMethod);
+            if (!sootMethod.isAbstract()) {
+                System.err.println("Could not get active body: " + sootMethod);
+            }
             return Collections.emptyList();
         }
 

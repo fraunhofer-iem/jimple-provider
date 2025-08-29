@@ -3,7 +3,7 @@ package de.fraunhofer.iem;
 import boomerang.scene.jimple.BoomerangPretransformer;
 import lombok.val;
 import soot.*;
-import soot.tagkit.SourceLnPosTag;
+import soot.tagkit.LineNumberTag;
 import soot.util.Chain;
 
 import java.io.File;
@@ -140,6 +140,27 @@ public class JimpleProvider {
         return getLastLineNumber(units, units.getPredOf(unit));
     }
 
+    private static int getLastLineNumberOfMethod(SootMethod method) {
+        if (!method.hasActiveBody()) {
+            method.retrieveActiveBody();
+        }
+
+        Body body = method.getActiveBody();
+        int lastLineNumber = -1;
+
+        for (Unit unit : body.getUnits()) {
+            LineNumberTag tag = (LineNumberTag) unit.getTag("LineNumberTag");
+            if (tag != null) {
+                int line = tag.getLineNumber();
+                if (line > lastLineNumber) {
+                    lastLineNumber = line;
+                }
+            }
+        }
+
+        return lastLineNumber;
+    }
+
     public String findMethodContainingLineNumber(String fileName, int lineNumber) {
         val className = fileName
                 .replace("src/main/java/", "")
@@ -158,7 +179,7 @@ public class JimpleProvider {
                 Chain<Unit> units = body.getUnits();
 
                 val firstUnitLineNumber = method.getJavaSourceStartLineNumber();
-                val lastUnitLineNumber = getLastLineNumber(units, units.getLast());
+                val lastUnitLineNumber = getLastLineNumberOfMethod(method); //getLastLineNumber(units, units.getLast());
 
                 if (lineNumber >= firstUnitLineNumber && lineNumber <= lastUnitLineNumber)
                     return method.getSignature();
@@ -239,8 +260,14 @@ public class JimpleProvider {
      * Pre tasks such as initializing soot, applying the pre-transformer
      *
      */
-    public void preTasks() {
-        sootUtils.initializeSoot(appClassPath, appClasses);
+    public void preTasks(boolean isMinimalSoot) {
+        if (isMinimalSoot) {
+            System.out.println("Minimal Soot");
+            sootUtils.initializeMinimalSoot(appClassPath, appClasses);
+        } else {
+            System.out.println("Full Soot");
+            sootUtils.initializeSoot(appClassPath, appClasses);
+        }
 
         // Set the pre-transformer
         // TODO: In future, if needed to extend the more transformer add the functionality here

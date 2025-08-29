@@ -22,7 +22,7 @@ public class JimpleProviderBuilder {
         return this;
     }
 
-    public JimpleProvider build() throws IOException {
+    public JimpleProvider build(boolean isMinimalSoot) throws IOException {
         if (this.jpAppClassPath == null || this.jpAppClassPath.isEmpty()) {
             throw new RuntimeException("App class path is not given. Please set the app class path before building.");
         }
@@ -38,9 +38,13 @@ public class JimpleProviderBuilder {
 
         val completeAppClasses = new FilesUtils().getClassesAsList(this.jpAppClassPath);
         jimpleProvider = JimpleProvider.getInstance(jpAppClassPath, jpPreTransformer, completeAppClasses);
-        jimpleProvider.preTasks();
+        jimpleProvider.preTasks(isMinimalSoot);
 
         return jimpleProvider;
+    }
+
+    public JimpleProvider build() throws IOException {
+        return build(false);
     }
 
     public void close() {
